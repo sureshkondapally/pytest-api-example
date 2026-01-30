@@ -10,6 +10,7 @@ TODO: Finish this test by...
 The purpose of this test is to validate the response matches the expected schema defined in schemas.py
 '''
 def test_pet_schema():
+    #To pass this test I have just fixed the schemas.py by changing name field to string frim integer
     test_endpoint = "/pets/1"
 
     response = api_helpers.get_api_data(test_endpoint)
@@ -26,21 +27,47 @@ TODO: Finish this test by...
 3) Validate the 'status' property in the response is equal to the expected status
 4) Validate the schema for each object in the response
 '''
-@pytest.mark.parametrize("status", [("available")])
+@pytest.mark.parametrize("status", ["available", "pending", "sold"])
 def test_find_by_status_200(status):
+    """
+    Validates that pets can be retrieved by status and
+    response matches expected schema
+    """
+
     test_endpoint = "/pets/findByStatus"
     params = {
         "status": status
     }
 
     response = api_helpers.get_api_data(test_endpoint, params)
-    # TODO...
+
+    # Validate the appropriate response code
+    assert response.status_code == 200
+
+    response_body = response.json()
+
+    # Response should be a list
+    assert isinstance(response_body, list)
+
+    # Validate the 'status' property for each object and also schema
+    for pet in response_body:
+        assert pet["status"] == status
+        validate(instance=pet, schema=schemas.pet)
 
 '''
 TODO: Finish this test by...
 1) Testing and validating the appropriate 404 response for /pets/{pet_id}
 2) Parameterizing the test for any edge cases
 '''
-def test_get_by_id_404():
-    # TODO...
-    pass
+def test_get_by_id_404(pet_id):
+    """
+    Validates that requesting a non-existent pet ID
+    returns a 404 response
+    """
+
+    test_endpoint = f"/pets/{pet_id}"
+
+    response = api_helpers.get_api_data(test_endpoint)
+
+    # Validate appropriate 404 response
+    assert response.status_code == 404

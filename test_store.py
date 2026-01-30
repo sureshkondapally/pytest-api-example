@@ -13,4 +13,26 @@ TODO: Finish this test by...
 4) Validate the response message "Order and pet status updated successfully"
 '''
 def test_patch_order_by_id():
-    pass
+    """
+    Validates that an order can be partially updated using PATCH
+    """
+
+    order_id = 1
+    test_endpoint = f"/store/order/{order_id}"
+
+    payload = {
+        "status": "delivered"
+    }
+
+    response = api_helpers.patch_api_data(test_endpoint, payload)
+
+    # Validate response code
+    assert response.status_code == 200
+
+    body = response.json()
+
+    # Validate response message
+    assert body["message"] == "Order and pet status updated successfully"
+
+    # Validate updated value
+    assert body["order"]["status"] == "delivered"
